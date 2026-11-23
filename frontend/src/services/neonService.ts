@@ -8,6 +8,7 @@ import { S3Client, PutObjectCommand, GetObjectCommand, ListObjectsV2Command } fr
 import { neon } from '@neondatabase/serverless';
 import { createAuthClient } from '@neon/auth';
 import { BetterAuthReactAdapter } from '@neon/auth/react/adapters';
+import { getApiBaseUrl } from '@/utils/apiConfig';
 
 // ------------------------------------------------------------------------------
 // 1. Neon Lakebase Postgres (Direct Serverless Query)
@@ -54,7 +55,7 @@ export async function generateEmailOtp(email: string, type: 'SIGN_IN' | 'SIGN_UP
   
   // 1. Try FastAPI backend first
   try {
-    const res = await fetch('http://localhost:8000/api/auth/otp/generate', {
+    const res = await fetch(`${getApiBaseUrl()}/api/auth/otp/generate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: cleanEmail, type })
@@ -118,7 +119,7 @@ export async function verifyEmailOtp(
 
   // 1. Try FastAPI backend
   try {
-    const res = await fetch('http://localhost:8000/api/auth/otp/verify', {
+    const res = await fetch(`${getApiBaseUrl()}/api/auth/otp/verify`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: cleanEmail, otp_code: cleanCode, full_name: fullName, role })
@@ -212,7 +213,7 @@ export async function syncClerkUser(
   const cleanEmail = email.trim().toLowerCase();
   
   try {
-    const res = await fetch('http://localhost:8000/api/auth/clerk/sync', {
+    const res = await fetch(`${getApiBaseUrl()}/api/auth/clerk/sync`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ clerk_id: clerkId, email: cleanEmail, full_name: fullName, avatar_url: avatarUrl, role })

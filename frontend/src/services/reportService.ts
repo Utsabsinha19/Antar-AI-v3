@@ -2,6 +2,7 @@
  * Antar AI (v2.0) - Intelligence Report Service
  * Coordinates report generation, Neon database synchronization, and local persistence.
  */
+import { getApiBaseUrl } from '@/utils/apiConfig';
 
 export interface ReportMetadata {
   session_id: string;
@@ -213,7 +214,7 @@ function saveLocalReport(report: ReportDetail): void {
  */
 export async function fetchReports(): Promise<ReportListItem[]> {
   try {
-    const res = await fetch('http://localhost:8000/api/reports', {
+    const res = await fetch(`${getApiBaseUrl()}/api/reports`, {
       headers: {
         'Content-Type': 'application/json',
         ...getAuthHeader()
@@ -250,7 +251,7 @@ export async function fetchReports(): Promise<ReportListItem[]> {
  */
 export async function fetchReportDetail(reportId: string): Promise<ReportDetail> {
   try {
-    const res = await fetch(`http://localhost:8000/api/reports/${encodeURIComponent(reportId)}`, {
+    const res = await fetch(`${getApiBaseUrl()}/api/reports/${encodeURIComponent(reportId)}`, {
       headers: {
         'Content-Type': 'application/json',
         ...getAuthHeader()
@@ -281,7 +282,7 @@ export async function generateSessionReport(
   deviceInfo?: Record<string, any>
 ): Promise<ReportDetail> {
   try {
-    const res = await fetch('http://localhost:8000/api/reports/generate', {
+    const res = await fetch(`${getApiBaseUrl()}/api/reports/generate`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -466,7 +467,7 @@ export async function generateSessionReport(
  */
 export async function compareReports(currentReportId: string, previousReportId: string): Promise<ReportComparison> {
   try {
-    const res = await fetch('http://localhost:8000/api/reports/compare', {
+    const res = await fetch(`${getApiBaseUrl()}/api/reports/compare`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -508,7 +509,7 @@ export async function compareReports(currentReportId: string, previousReportId: 
  */
 export async function deleteReport(reportId: string): Promise<boolean> {
   try {
-    const res = await fetch(`http://localhost:8000/api/reports/${encodeURIComponent(reportId)}`, {
+    const res = await fetch(`${getApiBaseUrl()}/api/reports/${encodeURIComponent(reportId)}`, {
       method: 'DELETE',
       headers: {
         ...getAuthHeader()

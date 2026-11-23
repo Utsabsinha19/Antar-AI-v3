@@ -4,6 +4,8 @@
  * Zero-Knowledge Enclave Architecture & Memory Zeroization Protocol
  */
 
+import { getApiBaseUrl } from '@/utils/apiConfig';
+
 export interface EncryptedBiometricRecord {
   userId: string;
   enrolledAt: number;
@@ -94,7 +96,7 @@ export class SecureBiometricVault {
         const b64Salt = btoa(String.fromCharCode(...salt));
         const b64Iv = btoa(String.fromCharCode(...iv));
 
-        await fetch('http://localhost:8000/api/biometrics/enroll', {
+        await fetch(`${getApiBaseUrl()}/api/biometrics/enroll`, {
           method: 'POST',
           headers,
           body: JSON.stringify({
@@ -137,7 +139,7 @@ export class SecureBiometricVault {
         const headers: Record<string, string> = {};
         if (token) headers['Authorization'] = `Bearer ${token}`;
 
-        const res = await fetch('http://localhost:8000/api/biometrics/status', { headers });
+        const res = await fetch(`${getApiBaseUrl()}/api/biometrics/status`, { headers });
         if (res.ok) {
           const data = await res.json();
           if (data.is_enrolled && data.encrypted_embedding && data.key_salt && data.iv) {
@@ -192,7 +194,7 @@ export class SecureBiometricVault {
       const token = localStorage.getItem('antar_auth_token');
       const headers: Record<string, string> = {};
       if (token) headers['Authorization'] = `Bearer ${token}`;
-      const res = await fetch('http://localhost:8000/api/biometrics/status', { headers });
+      const res = await fetch(`${getApiBaseUrl()}/api/biometrics/status`, { headers });
       if (res.ok) {
         const data = await res.json();
         return !!data.is_enrolled;
@@ -219,7 +221,7 @@ export class SecureBiometricVault {
       const token = localStorage.getItem('antar_auth_token');
       const headers: Record<string, string> = {};
       if (token) headers['Authorization'] = `Bearer ${token}`;
-      await fetch('http://localhost:8000/api/biometrics/enrollment', {
+      await fetch(`${getApiBaseUrl()}/api/biometrics/enrollment`, {
         method: 'DELETE',
         headers
       });

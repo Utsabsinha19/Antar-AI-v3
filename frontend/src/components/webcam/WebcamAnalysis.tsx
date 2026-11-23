@@ -19,6 +19,7 @@ import {
   loadEnrolledEmbedding, 
   deleteBiometricProfile 
 } from '@/services/SecureBiometricVault';
+import { getWsBaseUrl } from '@/utils/apiConfig';
 
 declare global {
   interface Window {
@@ -177,7 +178,7 @@ export default function WebcamAnalysis() {
       }
 
       try {
-        const ws = new WebSocket('ws://localhost:8000/ws/analyze');
+        const ws = new WebSocket(`${getWsBaseUrl()}/ws/analyze`);
         ws.onmessage = (event) => {
           try {
             const data = JSON.parse(event.data);

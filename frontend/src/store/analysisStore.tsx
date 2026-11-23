@@ -1,4 +1,5 @@
 import { createContext, ReactNode, useCallback, useContext, useMemo, useState } from 'react';
+import { getApiBaseUrl } from '@/utils/apiConfig';
 
 export type AnalysisStatus = 'idle' | 'running' | 'stopped';
 export type InsightType = 'success' | 'warning' | 'critical' | 'info';
@@ -648,7 +649,7 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
 
       // Automatically sync session to CockroachDB backend
       try {
-        fetch('http://localhost:8000/api/sessions', {
+        fetch(`${getApiBaseUrl()}/api/sessions`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
