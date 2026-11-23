@@ -14,7 +14,14 @@ import { getApiBaseUrl } from '@/utils/apiConfig';
 // 1. Neon Lakebase Postgres (Direct Serverless Query)
 // ------------------------------------------------------------------------------
 const databaseUrl = import.meta.env.VITE_NEON_DATABASE_URL || '';
-export const sql = databaseUrl ? neon(databaseUrl) : null;
+export const sql = (() => {
+  try {
+    return databaseUrl ? neon(databaseUrl) : null;
+  } catch (err) {
+    console.warn('[Neon Postgres] Direct query client initialization notice:', err);
+    return null;
+  }
+})();
 
 export async function fetchLiveSessionCount(): Promise<number> {
   if (!sql) return 0;
@@ -30,11 +37,21 @@ export async function fetchLiveSessionCount(): Promise<number> {
 // ------------------------------------------------------------------------------
 // 2. Neon Auth (Managed Better Auth Client) & Email OTP Authentication Engine
 // ------------------------------------------------------------------------------
-const authBaseUrl = import.meta.env.VITE_NEON_AUTH_URL || window.location.origin + '/auth';
+const authBaseUrl = import.meta.env.VITE_NEON_AUTH_URL || (typeof window !== 'undefined' ? window.location.origin + '/auth' : 'https://auth.neon.tech');
 
-export const authClient = createAuthClient(authBaseUrl, {
-  adapter: BetterAuthReactAdapter(),
-});
+export const authClient = (() => {
+  try {
+    return createAuthClient(authBaseUrl, {
+      adapter: BetterAuthReactAdapter(),
+    });
+  } catch (err) {
+    console.warn('[Neon Auth] Client initialization note:', err);
+    return {
+      signIn: { email: async () => ({ error: { message: 'Authentication service initializing' } }) },
+      signUp: { email: async () => ({ error: { message: 'Authentication service initializing' } }) }
+    } as any;
+  }
+})();
 
 export interface OTPResponse {
   success: boolean;
@@ -323,15 +340,22 @@ const s3KeyId = import.meta.env.VITE_AWS_ACCESS_KEY_ID || '';
 const s3Secret = import.meta.env.VITE_AWS_SECRET_ACCESS_KEY || '';
 export const BUCKET_NAME = import.meta.env.VITE_NEON_STORAGE_BUCKET || 'assets';
 
-export const s3Client = new S3Client({
-  region: s3Region,
-  endpoint: s3Endpoint,
-  credentials: {
-    accessKeyId: s3KeyId,
-    secretAccessKey: s3Secret
-  },
-  forcePathStyle: true
-});
+export const s3Client = (() => {
+  try {
+    return new S3Client({
+      region: s3Region,
+      endpoint: s3Endpoint,
+      credentials: {
+        accessKeyId: s3KeyId || 'placeholder',
+        secretAccessKey: s3Secret || 'placeholder'
+      },
+      forcePathStyle: true
+    });
+  } catch (err) {
+    console.warn('[Neon Storage] Client initialization notice:', err);
+    return null as any;
+  }
+})();
 
 export async function uploadSessionReportToStorage(filename: string, jsonPayload: object): Promise<boolean> {
   try {
